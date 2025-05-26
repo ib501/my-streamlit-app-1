@@ -1,5 +1,3 @@
-[default]
-
 OPENAI_API_KEY = "your-openai-key"
 
 EMAIL_ADDRESS = "your-gmail-address"
