@@ -1,24 +1,24 @@
-import openai
 import streamlit as st
+import openai
 import smtplib
 from email.mime.text import MIMEText
 
-# API Keys and Credentials
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-
-# UI Title and Description
+# Title and description
 st.title("AI-Powered Outreach Email Generator")
 st.markdown("Generate personalized outreach emails for businesses using AI.")
 
-# --- Input Fields ---
+# Input fields
 business_name = st.text_input("Business Name")
 business_type = st.text_input("Business Type (e.g., bakery, salon)")
 business_website = st.text_input("Business Website (optional)")
 recipient_email = st.text_input("Recipient Email")
 
-email_body = ""  # initialize variable
+email_body = ""
 
-# --- Generate Email ---
+# Use your OpenAI API key from Streamlit secrets
+openai.api_key = st.secrets["OPENAI_API_KEY"]
+
+# Generate the email
 if st.button("Generate Email"):
     with st.spinner("Generating email with AI..."):
         prompt = f"Write a short, friendly email offering AI services to a {business_type} called {business_name}. Mention how AI can save time and improve efficiency."
@@ -31,12 +31,14 @@ if st.button("Generate Email"):
                 messages=[{"role": "user", "content": prompt}]
             )
             email_body = response.choices[0].message.content
+            st.session_state.email_body = email_body  # Save to session for later use
             st.text_area("Generated Email", email_body, height=200)
         except Exception as e:
             st.error(f"Error generating email: {e}")
 
-# --- Optional Email Sending ---
+# Send the email
 if st.button("Send Email"):
+    email_body = st.session_state.get("email_body", "")
     if not recipient_email or not email_body:
         st.error("Please provide recipient email and generate an email first.")
     else:
@@ -56,3 +58,4 @@ if st.button("Send Email"):
             st.success("Email sent successfully!")
         except Exception as e:
             st.error(f"Failed to send email: {e}")
+
